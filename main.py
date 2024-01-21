@@ -54,6 +54,12 @@ class Appoinment:
     pass
 
 
+class Doctor:
+    def __init__(self, name):
+        self.name = name
+        self.id = id
+
+
 class User:
     staff = dict()
     patient = dict()
