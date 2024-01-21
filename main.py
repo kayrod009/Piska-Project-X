@@ -27,8 +27,11 @@ class Patient(Notification, User):
         pass
 
     def new_reservation(self):
-        #post to database
-        pass
+        self.stat_index = "13"
+        search_key = input("search")
+        # get data from database
+        get_id = int(input("enter your doctor/clinic id"))
+        globals()[f"{self.username}"] = Appoinment(get_id, self.id)
 
 class Staff(Notification, User):
     menu = "1.reserved appointments \n2.cancel appointment \n3.increase capacity"
