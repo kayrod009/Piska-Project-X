@@ -15,15 +15,24 @@ class Signup:
             globals()[f"{username}"] = Staff(username, email, password)
 
 class Patient(Notification, User):
+    menu = "1.reserved appointments \n2.history \n3.new reservation"
+
     def current_reserved(self):
-        #get from database
+        self.stat_index = "11"
+        # get from database
         pass
     def history(self):
-        #get from database
+        self.stat_index = "12"
+        # get from database
         pass
+
     def new_reservation(self):
-        #post to database
-        pass
+        self.stat_index = "13"
+        search_key = input("search")
+        # get data from database
+        get_id = int(input("enter your doctor/clinic id"))
+        globals()[f"{self.username}"] = Appoinment(get_id, self.id)
+
 
 class Staff(Notification, User):
     menu = "1.reserved appointments \n2.cancel appointment \n3.increase capacity"
