@@ -15,8 +15,11 @@ class Signup:
             globals()[f"{username}"] = Staff(username, email, password)
 
 class Patient(Notification, User):
+    menu = "1.reserved appointments \n2.history \n3.new reservation"
+
     def current_reserved(self):
-        #get from database
+        self.stat_index = "11"
+        # get from database
         pass
     def history(self):
         #get from database
