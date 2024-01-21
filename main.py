@@ -38,6 +38,11 @@ class Staff(Notification, User):
         self.confirm()
         # get from database
         pass
+    def increase_cap(self):
+        self.stat_index = "13"
+        self.confirm()
+        # post to database
+        pass
 
 
 
