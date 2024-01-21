@@ -22,8 +22,10 @@ class Patient(Notification, User):
         # get from database
         pass
     def history(self):
-        #get from database
+        self.stat_index = "12"
+        # get from database
         pass
+
     def new_reservation(self):
         #post to database
         pass
