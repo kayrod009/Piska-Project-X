@@ -32,3 +32,15 @@ CREATE TABLE IF NOT EXISTS doctors (
 ''')
 
 connection.commit()
+
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS appointment (
+    appointment_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    patient_id INTEGER NOT NULL,
+    doctor_id INTEGER NOT NULL,
+    status TEXT NOT NULL,
+    FOREIGN KEY (patient_id) REFERENCES patients(patient_id),
+    FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id)
+);
+''')
+connection.commit()
