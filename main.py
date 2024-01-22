@@ -321,4 +321,4 @@ while True:
             status = "00"
 
     elif status in ["11", "12", "13"]:
-        pass
+        User.options()
