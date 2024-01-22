@@ -119,23 +119,22 @@ class Signup:
             cursor.execute("SELECT username FROM patients WHERE username = ?", (username,))
             result = cursor.fetchall()
             if len(result) == 0:
-                # globals()[f"{username}"] = Patient(username)
+                globals()[f"{username}"] = Patient(username)
                 insert_query = '''
-                    INSERT INTO patients (username, email, password) VALUES (?, ?, ?);
-                    '''
+                INSERT INTO patients (username, email, password) VALUES (?, ?, ?);
+                '''
                 cursor.execute(insert_query, (username, email, password))
                 connection.commit()
                 eval(f"{username}").confirm()
                 # peyman = Patient("test@test", "patient", 1234)
             else:
                 print("username already exists!")
-
         elif role == "staff":
             cursor.execute("SELECT username FROM patients WHERE username = ?", (username,))
             result = cursor.fetchall()
             if len(result) == 0:
                 clinic_id = int(input("please enter your clinic id: "))
-                # globals()[f"{username}"] = Staff(username)
+                globals()[f"{username}"] = Staff(username)
                 insert_query = '''
                 INSERT INTO staffs (clinic_id, username, email, password) VALUES (?, ?, ?, ?);
                 '''
