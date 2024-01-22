@@ -45,6 +45,62 @@ class Signup:
         elif role == "staff":
             globals()[f"{username}"] = Staff(username, email, password)
 
+
+class Patient(Notification, User):
+    menu = "1.reserved appointments \n2.history \n3.new reservation"
+
+    def current_reserved(self):
+        self.stat_index = "11"
+        # get from database
+        pass
+
+    def history(self):
+        self.stat_index = "12"
+        # get from database
+        pass
+
+    def new_reservation(self):
+        self.stat_index = "13"
+        search_key = input("search")
+        # get data from database
+        get_id = int(input("enter your doctor/clinic id"))
+        globals()[f"{self.username}"] = Appoinment(get_id, self.id)
+
+
+class Staff(Notification, User):
+    menu = "1.reserved appointments \n2.cancel appointment \n3.increase capacity"
+
+    def first_option(self):  # current reservations
+        global status
+        status = "11"
+        cursor.execute("SELECT clinic_id FROM staffs WHERE username = ? ", (current_user,))
+        clinic_id = cursor.fetchone()
+        cursor.execute('''
+                              SELECT appointment_id
+                              FROM appointments AS app
+                              JOIN clinics ON app.clinic_id = clinics.clinic_id
+                              WHERE app.clinic_id = ? AND status = 1
+                                   ''', (int(clinic_id[0]),))
+        result = cursor.fetchall()
+        for i in result:
+            print(f"appointment_id: {i[0]}")
+
+    def cancel(self):
+        appo_id = int(input("enter the appointment's id"))
+        self.stat_index = "12"
+        self.confirm()
+        # get from database
+        pass
+
+    def increase_cap(self):
+        self.stat_index = "13"
+        self.confirm()
+        # post to database
+        pass
+
+
+
+
 class User:
     staff = dict()
     patient = dict()
@@ -119,60 +175,6 @@ class User:
 
     def showmenu(self):
         print(self.menu)
-
-
-class Patient(Notification, User):
-    menu = "1.reserved appointments \n2.history \n3.new reservation"
-
-    def current_reserved(self):
-        self.stat_index = "11"
-        # get from database
-        pass
-
-    def history(self):
-        self.stat_index = "12"
-        # get from database
-        pass
-
-    def new_reservation(self):
-        self.stat_index = "13"
-        search_key = input("search")
-        # get data from database
-        get_id = int(input("enter your doctor/clinic id"))
-        globals()[f"{self.username}"] = Appoinment(get_id, self.id)
-
-
-class Staff(Notification, User):
-    menu = "1.reserved appointments \n2.cancel appointment \n3.increase capacity"
-
-    def first_option(self):  # current reservations
-        global status
-        status = "11"
-        cursor.execute("SELECT clinic_id FROM staffs WHERE username = ? ", (current_user,))
-        clinic_id = cursor.fetchone()
-        cursor.execute('''
-                              SELECT appointment_id
-                              FROM appointments AS app
-                              JOIN clinics ON app.clinic_id = clinics.clinic_id
-                              WHERE app.clinic_id = ? AND status = 1
-                                   ''', (int(clinic_id[0]),))
-        result = cursor.fetchall()
-        for i in result:
-            print(f"appointment_id: {i[0]}")
-
-    def cancel(self):
-        appo_id = int(input("enter the appointment's id"))
-        self.stat_index = "12"
-        self.confirm()
-        # get from database
-        pass
-
-    def increase_cap(self):
-        self.stat_index = "13"
-        self.confirm()
-        # post to database
-        pass
-
 
 
 status = "00"
