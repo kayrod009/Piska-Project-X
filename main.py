@@ -115,7 +115,10 @@ class User:
 
     @staticmethod
     def make_instance(username, role):
-        pass
+        if role == "patient":
+            globals()[f"{username}"] = Patient(username)
+        elif role == "staff":
+            globals()[f"{username}"] = Staff(username)
 
     @staticmethod
     def sign_out():
