@@ -157,10 +157,10 @@ class User:
 
     @staticmethod
     def options():
-        order = input("1.Back\n2.Fuck off\n")
+        order = input("1.Back\n2.log out\n")
         if order == "Back" or order == "1":
             User.back()
-        elif order == "Fuck off" or order == "2":
+        elif order == "log out" or order == "2":
             User.sign_out()
 
     def showmenu(self):
