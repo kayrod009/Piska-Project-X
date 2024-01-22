@@ -36,6 +36,81 @@ class Appoinment(Notification):
 
 
 
+class User:
+    staff = dict()
+    patient = dict()
+
+    def __init__(self, username):
+        self.username = username
+
+    @staticmethod
+    def sign_in(username, role):
+        global status, current_user
+        if role == "patient":
+            cursor.execute("SELECT password FROM patients WHERE username = ? ", (username,))
+            usr_pas = cursor.fetchone()
+        elif role == "staff":
+            cursor.execute("SELECT password FROM staffs WHERE username = ? ", (username,))
+            usr_pas = cursor.fetchone()
+        else:
+            print("your role must be staff or patient!")
+            return
+        if usr_pas is None:
+            print("please sign up first!")
+        else:
+            passtype = input("password or OTP:")
+            if passtype == "password":
+                ask_pass = input("please enter your password: ")
+                if ask_pass == usr_pas[0]:  # sign in successfully
+                    User.make_instance(username, role)
+                    status = "10"
+                    current_user = username
+                else:
+                    print("Wrong password !")
+            elif passtype.lower() == "otp":
+                totp = pyotp.TOTP('base32secret3232')
+                otp = totp.now()
+                print(otp)
+                ask_otp = input("please enter your OTP: ")
+                if otp == ask_otp:  # sign in successfully
+                    User.make_instance(username, role)
+                    status = "10"
+                    current_user = username
+                    del otp
+                else:
+                    print("otp didn't match!")
+
+    @staticmethod
+    def make_instance(username, role):
+        if role == "patient":
+            globals()[f"{username}"] = Patient(username)
+        elif role == "staff":
+            globals()[f"{username}"] = Staff(username)
+
+    @staticmethod
+    def sign_out():
+        global status
+        status = "00"
+
+    @staticmethod
+    def back():
+        global status
+        if status in ["11", "12", "13"]:
+            status = "10"
+        elif status == "10":
+            status = "00"
+
+    @staticmethod
+    def options():
+        order = input("1.Back\n2.log out\n")
+        if order == "Back" or order == "1":
+            User.back()
+        elif order == "log out" or order == "2":
+            User.sign_out()
+
+    def showmenu(self):
+        print(self.menu)
+
 class Signup:
     @staticmethod
     def sign_up(username, email, role, password):
@@ -127,84 +202,6 @@ class Staff(Notification, User):
         connection.commit()
         self.confirm()
 
-
-
-
-
-class User:
-    staff = dict()
-    patient = dict()
-
-    def __init__(self, username):
-        self.username = username
-
-    @staticmethod
-    def sign_in(username, role):
-        global status, current_user
-        if role == "patient":
-            cursor.execute("SELECT password FROM patients WHERE username = ? ", (username,))
-            usr_pas = cursor.fetchone()
-        elif role == "staff":
-            cursor.execute("SELECT password FROM staffs WHERE username = ? ", (username,))
-            usr_pas = cursor.fetchone()
-        else:
-            print("your role must be staff or patient!")
-            return
-        if usr_pas is None:
-            print("please sign up first!")
-        else:
-            passtype = input("password or OTP:")
-            if passtype == "password":
-                ask_pass = input("please enter your password: ")
-                if ask_pass == usr_pas[0]:  # sign in successfully
-                    User.make_instance(username, role)
-                    status = "10"
-                    current_user = username
-                else:
-                    print("Wrong password !")
-            elif passtype.lower() == "otp":
-                totp = pyotp.TOTP('base32secret3232')
-                otp = totp.now()
-                print(otp)
-                ask_otp = input("please enter your OTP: ")
-                if otp == ask_otp:  # sign in successfully
-                    User.make_instance(username, role)
-                    status = "10"
-                    current_user = username
-                    del otp
-                else:
-                    print("otp didn't match!")
-
-    @staticmethod
-    def make_instance(username, role):
-        if role == "patient":
-            globals()[f"{username}"] = Patient(username)
-        elif role == "staff":
-            globals()[f"{username}"] = Staff(username)
-
-    @staticmethod
-    def sign_out():
-        global status
-        status = "00"
-
-    @staticmethod
-    def back():
-        global status
-        if status in ["11", "12", "13"]:
-            status = "10"
-        elif status == "10":
-            status = "00"
-
-    @staticmethod
-    def options():
-        order = input("1.Back\n2.log out\n")
-        if order == "Back" or order == "1":
-            User.back()
-        elif order == "log out" or order == "2":
-            User.sign_out()
-
-    def showmenu(self):
-        print(self.menu)
 
 
 status = "00"
