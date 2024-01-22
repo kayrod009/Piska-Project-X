@@ -70,6 +70,26 @@ CREATE TABLE IF NOT EXISTS doctors (
 );
 ''')
 
+# In-memory database from our Flask code
+database = {
+    "1": 25,
+    "2": 15,
+    "3": 15,
+    "4": 20,
+    "5": 30,
+    "6": 9,
+    "7": 8
+}
+
+# Insert the clinics into the clinics table
+for clinic_id, cap in database.items():
+    name = f'clinic {clinic_id}'
+    cursor.execute('''
+    INSERT INTO clinics (clinic_id, name, cap) VALUES (?, ?, ?)
+    ''', (clinic_id, name, cap))
+connection.commit()
+
+
 connection.commit()
 
 cursor.execute('''
