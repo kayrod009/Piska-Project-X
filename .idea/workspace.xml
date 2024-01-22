@@ -51,7 +51,7 @@
       <workItem from="1705248408283" duration="1124000" />
       <workItem from="1705389313281" duration="24000" />
       <workItem from="1705769949036" duration="2058000" />
-      <workItem from="1705932876810" duration="1078000" />
+      <workItem from="1705932876810" duration="1297000" />
     </task>
     <task id="LOCAL‎−۰۰۰۰۱" summary="halo !">
       <option name="closed" value="true" />
@@ -81,7 +81,14 @@
       <option name="presentableId" value="LOCAL‎−۰۰۰۰۴" />
       <updated>1705934632350</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL‎−۰۰۰۰۵" summary="Appointment and API implemented !">
+      <option name="closed" value="true" />
+      <created>1705934912393</created>
+      <option name="number" value="LOCAL‎−۰۰۰۰۵" />
+      <option name="presentableId" value="LOCAL‎−۰۰۰۰۵" />
+      <updated>1705934912393</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -101,8 +108,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="halo !" />
     <MESSAGE value="API required classes will be handled here." />
-    <MESSAGE value="Appointment and API implemented !" />
     <MESSAGE value="Merge remote-tracking branch 'origin/main'&#10;&#10;# Conflicts:&#10;#&#9;main.py" />
-    <option name="LAST_COMMIT_MESSAGE" value="Merge remote-tracking branch 'origin/main'&#10;&#10;# Conflicts:&#10;#&#9;main.py" />
+    <MESSAGE value="Appointment and API implemented !" />
+    <option name="LAST_COMMIT_MESSAGE" value="Appointment and API implemented !" />
   </component>
 </project>
