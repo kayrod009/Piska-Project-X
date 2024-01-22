@@ -1,10 +1,27 @@
 from abc import ABC
+import sqlite3
+import requests
+
+connection = sqlite3.connect("PiskaDB.db")
+cursor = connection.cursor()
+
 
 class Notification(ABC):
     @staticmethod
     def confirm():
         print("Done successfully")
 
+class Appoinment(Notification):
+    @staticmethod
+    def create(doc_id, patient_id):
+        # error must be returned when getting invalid commands !
+        cursor.execute("SELECT clinic_id FROM doctors WHERE doctor_id = ? ", (doc_id,))
+        clinic_id = cursor.fetchone()
+        insert_query = '''
+                        INSERT INTO appointments (patient_id, doctor_id, clinic_id, status) VALUES (?, ?, ?, 1);
+                        '''  # clinic_id
+        cursor.execute(insert_query, (patient_id, doc_id, clinic_id[0]))
+        cursor.execute("UPDATE clinics SET cap = cap - 1 WHERE clinic_id = ?", (clinic_id[0],))
 class Signup:
     @staticmethod
     def sign_up(username, email, role, password):

@@ -1,0 +1,40 @@
+Index: main.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+># don't fuck with me !\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/main.py b/main.py
+--- a/main.py	(revision 0562434b8bb510eefe55f12e63b78a398ae37b32)
++++ b/main.py	(date 1705867235256)
+@@ -1,1 +1,28 @@
+-# don't fuck with me !
++import pyotp
++import requests
++
++
++class Appoinment(Notification):
++    @staticmethod
++    def create(doc_id, patient_id):
++        # error must be returned when getting invalid commands !
++        cursor.execute("SELECT clinic_id FROM doctors WHERE doctor_id = ? ", (doc_id,))
++        clinic_id = cursor.fetchone()
++        insert_query = '''
++                        INSERT INTO appointments (patient_id, doctor_id, clinic_id, status) VALUES (?, ?, ?, 1);
++                        '''  # clinic_id
++        cursor.execute(insert_query, (patient_id, doc_id, clinic_id[0]))
++        cursor.execute("UPDATE clinics SET cap = cap - 1 WHERE clinic_id = ?", (clinic_id[0],))
++        #req api
++        url = 'http://localhost:5000/reserve'
++        headers = {'Content-Type': 'application/json'}
++        data = {'id': clinic_id[0], 'reserved': 1}
++        response = requests.post(url, headers=headers, json=data)
++
++        if response.status_code == 200:
++            print('Reservation successful')
++
++        connection.commit()
++
++
++
