@@ -309,7 +309,8 @@ while True:
         eval(f"{current_user}").showmenu()
         order = input("select your order number(1/2/3/4): ")
         if order == "1":
-            pass
+            eval(f"{current_user}").first_option()
+            User.options()
         elif order == "2":
             pass
         elif order == "3":
