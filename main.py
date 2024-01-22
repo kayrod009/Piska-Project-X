@@ -68,25 +68,65 @@ class Patient(Notification, User):
 
 
 class Staff(Notification, User):
-    menu = "1.reserved appointments \n2.cancel appointment \n3.increase capacity"
+    menu = "1.reserved appointments \n2.cancel appointment \n3.increase capacity\n4.back"
 
-    def current_reserved(self):
-        self.stat_index = "11"
-        # get from database
-        pass
+    def first_option(self):  # current reservations
+        global status
+        status = "11"
+        cursor.execute("SELECT clinic_id FROM staffs WHERE username = ? ", (current_user,))
+        clinic_id = cursor.fetchone()
+        cursor.execute('''
+                            SELECT appointment_id
+                            FROM appointments AS app
+                            JOIN clinics ON app.clinic_id = clinics.clinic_id
+                            WHERE app.clinic_id = ? AND status = 1
+                                 ''', (int(clinic_id[0]),))
+        result = cursor.fetchall()
+        for i in result:
+            print(f"appointment_id: {i[0]}")
 
-    def cancel(self):
-        appo_id = int(input("enter the appointment's id"))
-        self.stat_index = "12"
+    def second_option(self):  # cancel reservations
+        global status
+        appo_id = int(input("enter the appointment's id: "))
+        cursor.execute("SELECT clinic_id FROM appointments WHERE appointment_id = ? ", (appo_id,))
+        clinic_id = cursor.fetchone()
+        cursor.execute("UPDATE clinics SET cap = cap + 1 WHERE clinic_id = ?", (int(clinic_id[0]),))
+        connection.commit()
+        cursor.execute("UPDATE appointments SET status = status - 1 WHERE appointment_id = ?", (appo_id,))
+        connection.commit()
+        url = 'http://localhost:5000/reserve'
+        headers = {'Content-Type': 'application/json'}
+        data = {'id': clinic_id[0], 'reserved': -1}  # Decrease the reserved count
+        response = requests.post(url, headers=headers, json=data)
+
+        if response.status_code == 200:
+            print('Cancellation successful')
+        else:
+            print('Cancellation failed')
+        status = "12"
+
         self.confirm()
-        # get from database
-        pass
+        # change the appointment status on database
 
-    def increase_cap(self):
+    def third_option(self):  # increase cap
         self.stat_index = "13"
+        added_cap = int(input("how many appointments do you want to add to your clinic?: "))
+        cursor.execute("SELECT clinic_id FROM staffs WHERE username = ? ", (current_user,))
+        clinic_id = cursor.fetchone()
+        cursor.execute("UPDATE clinics SET cap = cap + ? WHERE clinic_id = ?", (added_cap, clinic_id[0]))
+        url = 'http://localhost:5000/reserve'
+        headers = {'Content-Type': 'application/json'}
+        data = {'id': clinic_id[0], 'reserved': -1}  # Decrease the reserved count
+        response = requests.post(url, headers=headers, json=data)
+
+        if response.status_code == 200:
+            print('cap increased successfully')
+        else:
+            print('failed to raise cap')
+
+        connection.commit()
         self.confirm()
-        # post to database
-        pass
+
 
 
 
