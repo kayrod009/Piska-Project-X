@@ -21,3 +21,14 @@ CREATE TABLE IF NOT EXISTS staffs (
 );
 ''')
 connection.commit()
+
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS doctors (
+    doctor_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    clinic_id INTEGER,
+    FOREIGN KEY (clinic_id) REFERENCES clinics(clinic_id)
+);
+''')
+
+connection.commit()
