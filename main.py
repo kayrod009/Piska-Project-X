@@ -1,6 +1,6 @@
 from abc import ABC
+import pyotp
 import sqlite3
-import requests
 
 connection = sqlite3.connect("PiskaDB.db")
 cursor = connection.cursor()
@@ -11,17 +11,7 @@ class Notification(ABC):
     def confirm():
         print("Done successfully")
 
-class Appoinment(Notification):
-    @staticmethod
-    def create(doc_id, patient_id):
-        # error must be returned when getting invalid commands !
-        cursor.execute("SELECT clinic_id FROM doctors WHERE doctor_id = ? ", (doc_id,))
-        clinic_id = cursor.fetchone()
-        insert_query = '''
-                        INSERT INTO appointments (patient_id, doctor_id, clinic_id, status) VALUES (?, ?, ?, 1);
-                        '''  # clinic_id
-        cursor.execute(insert_query, (patient_id, doc_id, clinic_id[0]))
-        cursor.execute("UPDATE clinics SET cap = cap - 1 WHERE clinic_id = ?", (clinic_id[0],))
+
 class Signup:
     @staticmethod
     def sign_up(username, email, role, password):
@@ -31,6 +21,7 @@ class Signup:
         elif role == "staff":
             globals()[f"{username}"] = Staff(username, email, password)
 
+
 class Patient(Notification, User):
     menu = "1.reserved appointments \n2.history \n3.new reservation"
 
@@ -38,6 +29,7 @@ class Patient(Notification, User):
         self.stat_index = "11"
         # get from database
         pass
+
     def history(self):
         self.stat_index = "12"
         # get from database
@@ -50,6 +42,7 @@ class Patient(Notification, User):
         get_id = int(input("enter your doctor/clinic id"))
         globals()[f"{self.username}"] = Appoinment(get_id, self.id)
 
+
 class Staff(Notification, User):
     menu = "1.reserved appointments \n2.cancel appointment \n3.increase capacity"
 
@@ -57,22 +50,19 @@ class Staff(Notification, User):
         self.stat_index = "11"
         # get from database
         pass
+
     def cancel(self):
         appo_id = int(input("enter the appointment's id"))
         self.stat_index = "12"
         self.confirm()
         # get from database
         pass
+
     def increase_cap(self):
         self.stat_index = "13"
         self.confirm()
         # post to database
         pass
-
-
-
-# class Doctor:
-#     pass
 
 
 class Appoinment:
@@ -89,23 +79,67 @@ class User:
     @staticmethod
     def sign_in(username, role):
         global status, current_user
-        pass
+        if role == "patient":
+            cursor.execute("SELECT password FROM patients WHERE username = ? ", (username,))
+            usr_pas = cursor.fetchone()
+        elif role == "staff":
+            cursor.execute("SELECT password FROM staffs WHERE username = ? ", (username,))
+            usr_pas = cursor.fetchone()
+        else:
+            print("your role must be staff or patient!")
+            return
+        if usr_pas is None:
+            print("please sign up first!")
+        else:
+            passtype = input("password or OTP:")
+            if passtype == "password":
+                ask_pass = input("please enter your password: ")
+                if ask_pass == usr_pas[0]:  # sign in successfully
+                    User.make_instance(username, role)
+                    status = "10"
+                    current_user = username
+                else:
+                    print("Wrong password !")
+            elif passtype.lower() == "otp":
+                totp = pyotp.TOTP('base32secret3232')
+                otp = totp.now()
+                print(otp)
+                ask_otp = input("please enter your OTP: ")
+                if otp == ask_otp:  # sign in successfully
+                    User.make_instance(username, role)
+                    status = "10"
+                    current_user = username
+                    del otp
+                else:
+                    print("otp didn't match!")
 
     @staticmethod
     def make_instance(username, role):
-        pass
+        if role == "patient":
+            globals()[f"{username}"] = Patient(username)
+        elif role == "staff":
+            globals()[f"{username}"] = Staff(username)
 
     @staticmethod
     def sign_out():
-        pass
+        global status
+        status = "00"
 
     @staticmethod
     def back():
-        pass
+        global status
+        if status in ["11", "12", "13"]:
+            status = "10"
+        elif status == "10":
+            status = "00"
 
     @staticmethod
     def options():
-        pass
+        order = input("1.Back\n2.Fuck off\n")
+        if order == "Back" or order == "1":
+            User.back()
+        elif order == "Fuck off" or order == "2":
+            User.sign_out()
 
     def showmenu(self):
-        pass
+        print(self.menu)
