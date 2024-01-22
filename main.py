@@ -1,6 +1,7 @@
 from abc import ABC
 import pyotp
 import sqlite3
+import requests
 
 connection = sqlite3.connect("PiskaDB.db")
 cursor = connection.cursor()
@@ -11,26 +12,36 @@ class Notification(ABC):
     def confirm():
         print("Done successfully")
 
+class Appoinment(Notification):
+    @staticmethod
+    def create(doc_id, patient_id):
+        # error must be returned when getting invalid commands !
+        cursor.execute("SELECT clinic_id FROM doctors WHERE doctor_id = ? ", (doc_id,))
+        clinic_id = cursor.fetchone()
+        insert_query = '''
+                        INSERT INTO appointments (patient_id, doctor_id, clinic_id, status) VALUES (?, ?, ?, 1);
+                        '''  # clinic_id
+        cursor.execute(insert_query, (patient_id, doc_id, clinic_id[0]))
+        cursor.execute("UPDATE clinics SET cap = cap - 1 WHERE clinic_id = ?", (clinic_id[0],))
+        # sending a post request to the flask database as API
+        url = 'http://localhost:5000/reserve'
+        headers = {'Content-Type': 'application/json'}
+        data = {'id': clinic_id[0], 'reserved': 1}
+        response = requests.post(url, headers=headers, json=data)
+
+        if response.status_code == 200:
+            print('Reservation successful')
+
+        connection.commit()
+
+
 
 class Signup:
     @staticmethod
     def sign_up(username, email, role, password):
-        global cursor
         if role == "patient":
-            cursor.execute("SELECT username FROM patients WHERE username = ?", (username,))
-            result = cursor.fetchall()
-            if len(result) == 0:
-                # globals()[f"{username}"] = Patient(username)
-                insert_query = '''
-                    INSERT INTO patients (username, email, password) VALUES (?, ?, ?);
-                    '''
-                cursor.execute(insert_query, (username, email, password))
-                connection.commit()
-                eval(f"{username}").confirm()
-                # peyman = Patient("test@test", "patient", 1234)
-            else:
-                print("username already exists!")
-
+            globals()[f"{username}"] = Patient(username, email, password)
+            # peyman = Patient("test@test", "patient", 1234)
         elif role == "staff":
             globals()[f"{username}"] = Staff(username, email, password)
 
@@ -78,8 +89,6 @@ class Staff(Notification, User):
         pass
 
 
-class Appoinment:
-    pass
 
 
 class User:
@@ -148,11 +157,49 @@ class User:
 
     @staticmethod
     def options():
-        order = input("1.Back\n2.Fuck off\n")
+        order = input("1.Back\n2.log out\n")
         if order == "Back" or order == "1":
             User.back()
-        elif order == "Fuck off" or order == "2":
+        elif order == "log out" or order == "2":
             User.sign_out()
 
     def showmenu(self):
         print(self.menu)
+
+
+status = "00"
+current_user = str()
+print("welcome!")
+
+while True:
+
+    if status == "00":
+        order = input("please sign up or sign in\n")
+        if order.lower() in ["sign up", "signup"]:
+            info = {
+                "username": "",
+                "email": "",
+                "role(patient/staff)": "",
+                "password": ""
+            }
+            for item in info:
+                info[f"{item}"] = input(f"please enter your {item}: ")
+            Signup.sign_up(info["username"], info["email"], info["role(patient/staff)"], info["password"])
+        elif order.lower() in ["sign in", "signin"]:
+            username = input("please enter your username: ")
+            role = input("please enter your role: ")
+            User.sign_in(username, role)
+
+    elif status == "10":
+        pass
+        if order == "1":
+            pass
+        elif order == "2":
+            pass
+        elif order == "3":
+            pass
+        elif order == "4":
+            pass
+
+    elif status in ["11", "12", "13"]:
+        pass
