@@ -35,10 +35,17 @@ class Patient(Notification, User):
         for i in result:
             print(i[0])
         # get from database
-    def history(self):
-        self.stat_index = "12"
-        # get from database
-        pass
+    def second_option(self):  # show history
+        global status, cursor
+        # get history from database
+        status = "12"
+        cursor.execute("SELECT patient_id FROM patients WHERE username = ? ", (current_user,))
+        result = cursor.fetchone()
+        cursor.execute("SELECT appointment_id FROM appointments WHERE patient_id = ? AND status = 0 ", (result[0],))
+        result = cursor.fetchall()
+        for i in result:
+            print(i[0])
+
 
     def new_reservation(self):
         self.stat_index = "13"
