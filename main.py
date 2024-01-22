@@ -318,7 +318,7 @@ while True:
             eval(f"{current_user}").third_option()
             User.options()
         elif order == "4":
-            pass
+            status = "00"
 
     elif status in ["11", "12", "13"]:
         pass
