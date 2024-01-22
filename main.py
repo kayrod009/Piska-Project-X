@@ -122,7 +122,8 @@ class User:
 
     @staticmethod
     def sign_out():
-        pass
+        global status
+        status = "00"
 
     @staticmethod
     def back():
