@@ -47,7 +47,6 @@ class Patient(Notification, User):
         for i in result:
             print(i[0])
 
-    def third_option(self):
 
     def third_option(self):  # new reservation
         global status, cursor
@@ -70,6 +69,24 @@ class Patient(Notification, User):
             print(f"Clinic: {i[0]} {i[1]}")
         for i in result_2:
             print(f"Doctor: {i[0]} {i[1]}")
+        # get data from database
+        get_id = input("enter your doctor/clinic number(doctor/clinic number)").split()
+        if get_id[0].lower() == "doctor":
+            Appoinment.create(int(get_id[1]), patient_id[0])
+            Appoinment.confirm()
+        elif get_id[0].lower() == "clinic":
+            cursor.execute('''
+                                   SELECT doctor_id, doc.name
+                                   FROM doctors AS doc
+                                   JOIN clinics ON doc.clinic_id = clinics.clinic_id
+                                   WHERE doc.clinic_id = ?
+                                   ''', (int(get_id[1]),))
+            result = cursor.fetchall()
+            for i in result:
+                print(f"Doctor: {i[0]} {i[1]}")
+            doc_id = input("please choose a doctor id: ")
+            Appoinment.create(doc_id, patient_id[0])
+            Appoinment.confirm()
 
 
         # API handling below
