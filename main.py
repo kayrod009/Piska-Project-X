@@ -312,7 +312,8 @@ while True:
             eval(f"{current_user}").first_option()
             User.options()
         elif order == "2":
-            pass
+            eval(f"{current_user}").second_option()
+            User.options()
         elif order == "3":
             pass
         elif order == "4":
