@@ -47,12 +47,7 @@ class Patient(Notification, User):
         for i in result:
             print(i[0])
 
-    def new_reservation(self):
-        self.stat_index = "13"
-        search_key = input("search")
-        # get data from database
-        get_id = int(input("enter your doctor/clinic id"))
-        globals()[f"{self.username}"] = Appoinment(get_id, self.id)
+    def third_option(self):
 
     def third_option(self):  # new reservation
         global status, cursor
@@ -76,6 +71,15 @@ class Patient(Notification, User):
         for i in result_2:
             print(f"Doctor: {i[0]} {i[1]}")
 
+
+        # API handling below
+        url = 'http://localhost:5000/reserve'
+        headers = {'Content-Type': 'application/json'}
+        data = {'id': clinic_id[0], 'reserved': 1}  # increase the reserved count
+        response = requests.post(url, headers=headers, json=data)
+        if response.status_code == 200:
+            print('reservation successful')
+        Appoinment.confirm()
 
 class Staff(Notification, User):
     menu = "1.reserved appointments \n2.cancel appointment \n3.increase capacity"

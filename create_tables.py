@@ -1,4 +1,43 @@
+from flask import Flask, request, jsonify
 import sqlite3
+app = Flask(__name__)
+
+@app.route('/slots', methods=['GET'])
+def get_slots():
+    connection = sqlite3.connect('PiskaDB.db')
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM clinics")
+    clinics = cursor.fetchall()
+    connection.close()
+    return jsonify({clinic[0]: clinic[2] for clinic in clinics})
+
+@app.route('/reserve', methods=['POST'])
+def reserve_slot():
+    data = request.json
+    clinic_id = data.get('id')
+    reserved = data.get('reserved', 0)
+
+    connection = sqlite3.connect('PiskaDB.db')
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT cap FROM clinics WHERE clinic_id = ?", (clinic_id,))
+    current_capacity = cursor.fetchone()[0]
+
+    if current_capacity and current_capacity >= reserved:
+        cursor.execute("UPDATE clinics SET cap = cap - ? WHERE clinic_id = ?", (reserved, clinic_id))
+        connection.commit()
+
+        cursor.execute("SELECT cap FROM clinics WHERE clinic_id = ?", (clinic_id,))
+        new_capacity = cursor.fetchone()[0]
+
+        connection.close()
+        return jsonify({"success": True, "remaining_slots": new_capacity})
+    else:
+        connection.close()
+        return jsonify({"success": False, "message": "Invalid request"}), 400
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
 connection = sqlite3.connect('PiskaDB.db')
 cursor = connection.cursor()
