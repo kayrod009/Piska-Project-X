@@ -214,7 +214,7 @@ class Patient(Notification, User):
         #API handled below
         url = 'http://localhost:5000/reserve'
         headers = {'Content-Type': 'application/json'}
-        data = {'id': clinic_id[0], 'reserved': 1}  # increase the reserved count
+        data = {'id': get_id[1], 'reserved': 1}  # increase the reserved count
         response = requests.post(url, headers=headers, json=data)
         if response.status_code == 200:
             print('reservation successful')
