@@ -306,7 +306,8 @@ while True:
             User.sign_in(username, role)
 
     elif status == "10":
-        pass
+        eval(f"{current_user}").showmenu()
+        order = input("select your order number(1/2/3/4): ")
         if order == "1":
             pass
         elif order == "2":
