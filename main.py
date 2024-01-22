@@ -71,6 +71,10 @@ class Patient(Notification, User):
                        AND clinics.cap != 0
                        ''', (search_key,))
         result_2 = cursor.fetchall()
+        for i in result_1:
+            print(f"Clinic: {i[0]} {i[1]}")
+        for i in result_2:
+            print(f"Doctor: {i[0]} {i[1]}")
 
 
 class Staff(Notification, User):
