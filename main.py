@@ -54,6 +54,24 @@ class Patient(Notification, User):
         get_id = int(input("enter your doctor/clinic id"))
         globals()[f"{self.username}"] = Appoinment(get_id, self.id)
 
+    def third_option(self):  # new reservation
+        global status, cursor
+        cursor.execute("SELECT patient_id FROM patients WHERE username = ? ", (current_user,))
+        patient_id = cursor.fetchone()
+        status = "13"
+        search_key = input("search: ")
+        search_key = f"%{search_key}%"
+        cursor.execute("SELECT clinic_id , name FROM clinics WHERE name LIKE ? AND cap != 0 ", (search_key,))
+        result_1 = cursor.fetchall()
+        cursor.execute('''
+                       SELECT doctor_id, doctors.name
+                       FROM doctors
+                       JOIN clinics ON doctors.clinic_id = clinics.clinic_id
+                       WHERE doctors.name LIKE ?
+                       AND clinics.cap != 0
+                       ''', (search_key,))
+        result_2 = cursor.fetchall()
+
 
 class Staff(Notification, User):
     menu = "1.reserved appointments \n2.cancel appointment \n3.increase capacity"
