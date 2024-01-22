@@ -142,4 +142,4 @@ class User:
             User.sign_out()
 
     def showmenu(self):
-        pass
+        print(self.menu)
