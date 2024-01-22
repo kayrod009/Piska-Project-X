@@ -92,6 +92,26 @@ class Staff(Notification, User):
         # get from database
         pass
 
+    def third_option(self):  # increase cap
+        self.stat_index = "13"
+        added_cap = int(input("how many appointments do you want to add to your clinic?: "))
+        cursor.execute("SELECT clinic_id FROM staffs WHERE username = ? ", (current_user,))
+        clinic_id = cursor.fetchone()
+        cursor.execute("UPDATE clinics SET cap = cap + ? WHERE clinic_id = ?", (added_cap, clinic_id[0]))
+        url = 'http://localhost:5000/reserve'
+        headers = {'Content-Type': 'application/json'}
+        data = {'id': clinic_id[0], 'reserved': -1}  # Decrease the reserved count
+        response = requests.post(url, headers=headers, json=data)
+
+        if response.status_code == 200:
+            print('cap increased successfully')
+        else:
+            print('failed to raise cap')
+
+        connection.commit()
+        self.confirm()
+
+
     def increase_cap(self):
         self.stat_index = "13"
         self.confirm()
