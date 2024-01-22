@@ -23,70 +23,24 @@ class Signup:
 
 
 class Patient(Notification, User):
-    menu = "1.reserved appointments \n2.history \n3.new reservation\n4.back"
+    menu = "1.reserved appointments \n2.history \n3.new reservation"
 
-    def first_option(self):  # current reservations
-        global status, cursor
-        status = "11"
-        cursor.execute("SELECT patient_id FROM patients WHERE username = ? ", (current_user,))
-        result = cursor.fetchone()
-        cursor.execute("SELECT appointment_id FROM appointments WHERE patient_id = ? AND status = 1 ", (result[0],))
-        result = cursor.fetchall()
-        for i in result:
-            print(i[0])
+    def current_reserved(self):
+        self.stat_index = "11"
         # get from database
-    def second_option(self):  # show history
-        global status, cursor
-        # get history from database
-        status = "12"
-        cursor.execute("SELECT patient_id FROM patients WHERE username = ? ", (current_user,))
-        result = cursor.fetchone()
-        cursor.execute("SELECT appointment_id FROM appointments WHERE patient_id = ? AND status = 0 ", (result[0],))
-        result = cursor.fetchall()
-        for i in result:
-            print(i[0])
+        pass
 
-    def third_option(self):  # new reservation
-        global status, cursor
-        cursor.execute("SELECT patient_id FROM patients WHERE username = ? ", (current_user,))
-        patient_id = cursor.fetchone()
-        status = "13"
-        search_key = input("search: ")
-        search_key = f"%{search_key}%"
-        cursor.execute("SELECT clinic_id , name FROM clinics WHERE name LIKE ? AND cap != 0 ", (search_key,))
-        result_1 = cursor.fetchall()
-        cursor.execute('''
-                       SELECT doctor_id, doctors.name
-                       FROM doctors
-                       JOIN clinics ON doctors.clinic_id = clinics.clinic_id
-                       WHERE doctors.name LIKE ?
-                       AND clinics.cap != 0
-                       ''', (search_key,))
-        result_2 = cursor.fetchall()
-        for i in result_1:
-            print(f"Clinic: {i[0]} {i[1]}")
-        for i in result_2:
-            print(f"Doctor: {i[0]} {i[1]}")
+    def history(self):
+        self.stat_index = "12"
+        # get from database
+        pass
+
+    def new_reservation(self):
+        self.stat_index = "13"
+        search_key = input("search")
         # get data from database
-        get_id = input("enter your doctor/clinic number(doctor/clinic number)").split()
-        if get_id[0].lower() == "doctor":
-            Appoinment.create(int(get_id[1]), patient_id[0])
-            Appoinment.confirm()
-        elif get_id[0].lower() == "clinic":
-            cursor.execute('''
-                                   SELECT doctor_id, doc.name
-                                   FROM doctors AS doc
-                                   JOIN clinics ON doc.clinic_id = clinics.clinic_id
-                                   WHERE doc.clinic_id = ?
-                                   ''', (int(get_id[1]),))
-            result = cursor.fetchall()
-            for i in result:
-                print(f"Doctor: {i[0]} {i[1]}")
-            doc_id = input("please choose a doctor id: ")
-            Appoinment.create(doc_id, patient_id[0])
-            Appoinment.confirm()
-
-
+        get_id = int(input("enter your doctor/clinic id"))
+        globals()[f"{self.username}"] = Appoinment(get_id, self.id)
 
 
 class Staff(Notification, User):
