@@ -1,7 +1,6 @@
 from abc import ABC
 import pyotp
 import sqlite3
-import requests
 
 connection = sqlite3.connect("PiskaDB.db")
 cursor = connection.cursor()
@@ -12,29 +11,6 @@ class Notification(ABC):
     def confirm():
         print("Done successfully")
 
-class Appoinment(Notification):
-    @staticmethod
-    def create(doc_id, patient_id):
-        # error must be returned when getting invalid commands !
-        cursor.execute("SELECT clinic_id FROM doctors WHERE doctor_id = ? ", (doc_id,))
-        clinic_id = cursor.fetchone()
-        insert_query = '''
-                        INSERT INTO appointments (patient_id, doctor_id, clinic_id, status) VALUES (?, ?, ?, 1);
-                        '''  # clinic_id
-        cursor.execute(insert_query, (patient_id, doc_id, clinic_id[0]))
-        cursor.execute("UPDATE clinics SET cap = cap - 1 WHERE clinic_id = ?", (clinic_id[0],))
-        # sending a post request to the flask database as API
-        url = 'http://localhost:5000/reserve'
-        headers = {'Content-Type': 'application/json'}
-        data = {'id': clinic_id[0], 'reserved': 1}
-        response = requests.post(url, headers=headers, json=data)
-
-        if response.status_code == 200:
-            print('Reservation successful')
-
-        connection.commit()
-
-
 
 class Signup:
     @staticmethod
@@ -44,6 +20,53 @@ class Signup:
             # peyman = Patient("test@test", "patient", 1234)
         elif role == "staff":
             globals()[f"{username}"] = Staff(username, email, password)
+
+
+class Patient(Notification, User):
+    menu = "1.reserved appointments \n2.history \n3.new reservation"
+
+    def current_reserved(self):
+        self.stat_index = "11"
+        # get from database
+        pass
+
+    def history(self):
+        self.stat_index = "12"
+        # get from database
+        pass
+
+    def new_reservation(self):
+        self.stat_index = "13"
+        search_key = input("search")
+        # get data from database
+        get_id = int(input("enter your doctor/clinic id"))
+        globals()[f"{self.username}"] = Appoinment(get_id, self.id)
+
+
+class Staff(Notification, User):
+    menu = "1.reserved appointments \n2.cancel appointment \n3.increase capacity"
+
+    def current_reserved(self):
+        self.stat_index = "11"
+        # get from database
+        pass
+
+    def cancel(self):
+        appo_id = int(input("enter the appointment's id"))
+        self.stat_index = "12"
+        self.confirm()
+        # get from database
+        pass
+
+    def increase_cap(self):
+        self.stat_index = "13"
+        self.confirm()
+        # post to database
+        pass
+
+
+class Appoinment:
+    pass
 
 
 class User:
@@ -112,135 +135,11 @@ class User:
 
     @staticmethod
     def options():
-        order = input("1.Back\n2.log out\n")
+        order = input("1.Back\n2.Fuck off\n")
         if order == "Back" or order == "1":
             User.back()
-        elif order == "log out" or order == "2":
+        elif order == "Fuck off" or order == "2":
             User.sign_out()
 
     def showmenu(self):
         print(self.menu)
-
-
-class Patient(Notification, User):
-    menu = "1.reserved appointments \n2.history \n3.new reservation"
-
-    def current_reserved(self):
-        self.stat_index = "11"
-        # get from database
-        pass
-
-    def history(self):
-        self.stat_index = "12"
-        # get from database
-        pass
-
-    def new_reservation(self):
-        self.stat_index = "13"
-        search_key = input("search")
-        # get data from database
-        get_id = int(input("enter your doctor/clinic id"))
-        globals()[f"{self.username}"] = Appoinment(get_id, self.id)
-
-
-class Staff(Notification, User):
-    menu = "1.reserved appointments \n2.cancel appointment \n3.increase capacity"
-
-    def first_option(self):  # current reservations
-        global status
-        status = "11"
-        cursor.execute("SELECT clinic_id FROM staffs WHERE username = ? ", (current_user,))
-        clinic_id = cursor.fetchone()
-        cursor.execute('''
-                              SELECT appointment_id
-                              FROM appointments AS app
-                              JOIN clinics ON app.clinic_id = clinics.clinic_id
-                              WHERE app.clinic_id = ? AND status = 1
-                                   ''', (int(clinic_id[0]),))
-        result = cursor.fetchall()
-        for i in result:
-            print(f"appointment_id: {i[0]}")
-
-    def second_option(self):  # cancel reservations
-        global status
-        appo_id = int(input("enter the appointment's id: "))
-        cursor.execute("SELECT clinic_id FROM appointments WHERE appointment_id = ? ", (appo_id,))
-        clinic_id = cursor.fetchone()
-        cursor.execute("UPDATE clinics SET cap = cap + 1 WHERE clinic_id = ?", (int(clinic_id[0]),))
-        connection.commit()
-        cursor.execute("UPDATE appointments SET status = status - 1 WHERE appointment_id = ?", (appo_id,))
-        connection.commit()
-        url = 'http://localhost:5000/reserve'
-        headers = {'Content-Type': 'application/json'}
-        data = {'id': clinic_id[0], 'reserved': -1}  # Decrease the reserved count
-        response = requests.post(url, headers=headers, json=data)
-
-        if response.status_code == 200:
-            print('Cancellation successful')
-        else:
-            print('Cancellation failed')
-        status = "12"
-
-        self.confirm()
-        # change the appointment status on database
-
-    def third_option(self):  # increase cap
-        self.stat_index = "13"
-        added_cap = int(input("how many appointments do you want to add to your clinic?: "))
-        cursor.execute("SELECT clinic_id FROM staffs WHERE username = ? ", (current_user,))
-        clinic_id = cursor.fetchone()
-        cursor.execute("UPDATE clinics SET cap = cap + ? WHERE clinic_id = ?", (added_cap, clinic_id[0]))
-        url = 'http://localhost:5000/reserve'
-        headers = {'Content-Type': 'application/json'}
-        data = {'id': clinic_id[0], 'reserved': -1}  # Decrease the reserved count
-        response = requests.post(url, headers=headers, json=data)
-
-        if response.status_code == 200:
-            print('cap increased successfully')
-        else:
-            print('failed to raise cap')
-
-        connection.commit()
-        self.confirm()
-
-
-
-
-
-
-status = "00"
-current_user = str()
-print("welcome!")
-
-while True:
-
-    if status == "00":
-        order = input("please sign up or sign in\n")
-        if order.lower() in ["sign up", "signup"]:
-            info = {
-                "username": "",
-                "email": "",
-                "role(patient/staff)": "",
-                "password": ""
-            }
-            for item in info:
-                info[f"{item}"] = input(f"please enter your {item}: ")
-            Signup.sign_up(info["username"], info["email"], info["role(patient/staff)"], info["password"])
-        elif order.lower() in ["sign in", "signin"]:
-            username = input("please enter your username: ")
-            role = input("please enter your role: ")
-            User.sign_in(username, role)
-
-    elif status == "10":
-        pass
-        if order == "1":
-            pass
-        elif order == "2":
-            pass
-        elif order == "3":
-            pass
-        elif order == "4":
-            pass
-
-    elif status in ["11", "12", "13"]:
-        pass
