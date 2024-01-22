@@ -1,36 +1,9 @@
 from abc import ABC
-import sqlite3
-import requests
-
-connection = sqlite3.connect("PiskaDB.db")
-cursor = connection.cursor()
 
 class Notification(ABC):
     @staticmethod
     def confirm():
         print("Done successfully")
-
-class Appoinment:
-    @staticmethod
-    def create(doc_id, patient_id):
-        # error must be returned when getting invalid commands !
-        cursor.execute("SELECT clinic_id FROM doctors WHERE doctor_id = ? ", (doc_id,))
-        clinic_id = cursor.fetchone()
-        insert_query = '''
-                          INSERT INTO appointments (patient_id, doctor_id, clinic_id, status) VALUES (?, ?, ?, 1);
-                          '''  # clinic_id
-        cursor.execute(insert_query, (patient_id, doc_id, clinic_id[0]))
-        cursor.execute("UPDATE clinics SET cap = cap - 1 WHERE clinic_id = ?", (clinic_id[0],))
-        # sending a post request to the flask database as API
-        url = 'http://localhost:5000/reserve'
-        headers = {'Content-Type': 'application/json'}
-        data = {'id': clinic_id[0], 'reserved': 1}
-        response = requests.post(url, headers=headers, json=data)
-
-        if response.status_code == 200:
-            print('Reservation successful')
-
-        connection.commit()
 
 class Signup:
     @staticmethod
@@ -85,7 +58,8 @@ class Staff(Notification, User):
 #     pass
 
 
-
+class Appoinment:
+    pass
 
 
 class User:
