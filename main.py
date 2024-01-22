@@ -70,10 +70,20 @@ class Patient(Notification, User):
 class Staff(Notification, User):
     menu = "1.reserved appointments \n2.cancel appointment \n3.increase capacity"
 
-    def current_reserved(self):
-        self.stat_index = "11"
-        # get from database
-        pass
+    def first_option(self):  # current reservations
+        global status
+        status = "11"
+        cursor.execute("SELECT clinic_id FROM staffs WHERE username = ? ", (current_user,))
+        clinic_id = cursor.fetchone()
+        cursor.execute('''
+                              SELECT appointment_id
+                              FROM appointments AS app
+                              JOIN clinics ON app.clinic_id = clinics.clinic_id
+                              WHERE app.clinic_id = ? AND status = 1
+                                   ''', (int(clinic_id[0]),))
+        result = cursor.fetchall()
+        for i in result:
+            print(f"appointment_id: {i[0]}")
 
     def cancel(self):
         appo_id = int(input("enter the appointment's id"))
