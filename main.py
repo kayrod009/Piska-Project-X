@@ -15,9 +15,22 @@ class Notification(ABC):
 class Signup:
     @staticmethod
     def sign_up(username, email, role, password):
+        global cursor
         if role == "patient":
-            globals()[f"{username}"] = Patient(username, email, password)
-            # peyman = Patient("test@test", "patient", 1234)
+            cursor.execute("SELECT username FROM patients WHERE username = ?", (username,))
+            result = cursor.fetchall()
+            if len(result) == 0:
+                # globals()[f"{username}"] = Patient(username)
+                insert_query = '''
+                    INSERT INTO patients (username, email, password) VALUES (?, ?, ?);
+                    '''
+                cursor.execute(insert_query, (username, email, password))
+                connection.commit()
+                eval(f"{username}").confirm()
+                # peyman = Patient("test@test", "patient", 1234)
+            else:
+                print("username already exists!")
+
         elif role == "staff":
             globals()[f"{username}"] = Staff(username, email, password)
 
