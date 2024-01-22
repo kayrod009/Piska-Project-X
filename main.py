@@ -165,3 +165,41 @@ class User:
 
     def showmenu(self):
         print(self.menu)
+
+
+status = "00"
+current_user = str()
+print("welcome!")
+
+while True:
+
+    if status == "00":
+        order = input("please sign up or sign in\n")
+        if order.lower() in ["sign up", "signup"]:
+            info = {
+                "username": "",
+                "email": "",
+                "role(patient/staff)": "",
+                "password": ""
+            }
+            for item in info:
+                info[f"{item}"] = input(f"please enter your {item}: ")
+            Signup.sign_up(info["username"], info["email"], info["role(patient/staff)"], info["password"])
+        elif order.lower() in ["sign in", "signin"]:
+            username = input("please enter your username: ")
+            role = input("please enter your role: ")
+            User.sign_in(username, role)
+
+    elif status == "10":
+        pass
+        if order == "1":
+            pass
+        elif order == "2":
+            pass
+        elif order == "3":
+            pass
+        elif order == "4":
+            pass
+
+    elif status in ["11", "12", "13"]:
+        pass
