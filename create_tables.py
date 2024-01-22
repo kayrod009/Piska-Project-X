@@ -44,3 +44,22 @@ CREATE TABLE IF NOT EXISTS appointment (
 );
 ''')
 connection.commit()
+
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS clinics (
+    clinic_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    cap INTEGER NOT NULL
+);
+''')
+connection.commit()
+
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS clinics (
+    clinic_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    cap INTEGER NOT NULL
+);
+''')
+connection.commit()
+connection.close()
