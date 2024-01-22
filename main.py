@@ -135,7 +135,11 @@ class User:
 
     @staticmethod
     def options():
-        pass
+        order = input("1.Back\n2.Fuck off\n")
+        if order == "Back" or order == "1":
+            User.back()
+        elif order == "Fuck off" or order == "2":
+            User.sign_out()
 
     def showmenu(self):
         pass
