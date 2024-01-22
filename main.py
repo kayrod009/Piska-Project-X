@@ -161,12 +161,28 @@ class Staff(Notification, User):
         for i in result:
             print(f"appointment_id: {i[0]}")
 
-    def cancel(self):
-        appo_id = int(input("enter the appointment's id"))
-        self.stat_index = "12"
+    def second_option(self):  # cancel reservations
+        global status
+        appo_id = int(input("enter the appointment's id: "))
+        cursor.execute("SELECT clinic_id FROM appointments WHERE appointment_id = ? ", (appo_id,))
+        clinic_id = cursor.fetchone()
+        cursor.execute("UPDATE clinics SET cap = cap + 1 WHERE clinic_id = ?", (int(clinic_id[0]),))
+        connection.commit()
+        cursor.execute("UPDATE appointments SET status = status - 1 WHERE appointment_id = ?", (appo_id,))
+        connection.commit()
+        url = 'http://localhost:5000/reserve'
+        headers = {'Content-Type': 'application/json'}
+        data = {'id': clinic_id[0], 'reserved': -1}  # Decrease the reserved count
+        response = requests.post(url, headers=headers, json=data)
+
+        if response.status_code == 200:
+            print('Cancellation successful')
+        else:
+            print('Cancellation failed')
+        status = "12"
+
         self.confirm()
-        # get from database
-        pass
+        # change the appointment status on database
 
     def third_option(self):  # increase cap
         self.stat_index = "13"
