@@ -23,12 +23,18 @@ class Signup:
 
 
 class Patient(Notification, User):
-    menu = "1.reserved appointments \n2.history \n3.new reservation"
+    menu = "1.reserved appointments \n2.history \n3.new reservation\n4.back"
 
-    def current_reserved(self):
-        self.stat_index = "11"
+    def first_option(self):  # current reservations
+        global status, cursor
+        status = "11"
+        cursor.execute("SELECT patient_id FROM patients WHERE username = ? ", (current_user,))
+        result = cursor.fetchone()
+        cursor.execute("SELECT appointment_id FROM appointments WHERE patient_id = ? AND status = 1 ", (result[0],))
+        result = cursor.fetchall()
+        for i in result:
+            print(i[0])
         # get from database
-        pass
 
     def history(self):
         self.stat_index = "12"
