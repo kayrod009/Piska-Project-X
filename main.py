@@ -127,7 +127,11 @@ class User:
 
     @staticmethod
     def back():
-        pass
+        global status
+        if status in ["11", "12", "13"]:
+            status = "10"
+        elif status == "10":
+            status = "00"
 
     @staticmethod
     def options():
