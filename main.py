@@ -80,7 +80,11 @@ class Patient(Notification, User):
                                    WHERE doc.clinic_id = ?
                                    ''', (int(get_id[1]),))
             result = cursor.fetchall()
-
+            for i in result:
+                print(f"Doctor: {i[0]} {i[1]}")
+            doc_id = input("please choose a doctor id: ")
+            Appoinment.create(doc_id, patient_id[0])
+            Appoinment.confirm()
 
 
 
